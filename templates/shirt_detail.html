@@ -1,7 +1,37 @@
 {% extends 'base.html' %}
+{%  load cloudinary %}
 
 {% block content %}
+    <script>
+    $(document).ready(function() {
+        function getComments() {
+            $.ajax({
+                type: "GET",
+                url: "/shirt/get_comment/",
+                dataType: "json",
+                data:{ id: '{{ shirt.id }}' },
+                success: function(json) {
+                    let commentsBlock = "";
+                    for(let commentID in json){
+                        var comment = "<div class=\"container\" style = \"border-style:solid; border-width:1px; border-radius:5px; margin-top:25px\">";
+                        comment += "<p>"+ json[commentID].user +"</p>";
+                        comment += "<p>"+ json[commentID].text+ "</p>";
+                        comment += "<p>"+ json[commentID].likes+" Likes</p>";
+                        comment += "</div>";
+                        commentsBlock += comment;
+                    }
+                    document.getElementById("comments").innerHTML = commentsBlock;
+                }
+            });
+            setTimeout(getComments,20000);
+        }
+        getComments();
+    });
+    </script>
     <H1>{{ shirt.title }}</H1>
-    <img src="{{ shirt.photo.url }}" style="float: left"/>
-    <div class="container">{{ shirt.description }}</div>
+
+    <div class="container" style="overflow: hidden;">{% cloudinary shirt.image style="float: left" %}
+        {{ shirt.description }}</div>
+
+    <div id="comments"  style="margin-top: 50px;  clear: both;margin-bottom: 25px;"></div>
 {% endblock %}

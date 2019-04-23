@@ -17,3 +17,5 @@ media
 .idea/**/gradle.xml 
 .idea/**/libraries 
 *.iws /out/ 
+shop/secret.py
+

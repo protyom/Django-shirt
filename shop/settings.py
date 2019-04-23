@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+from .secret import EmailPassword, cloudinary_secret
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'shirts',
     'profiles',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +62,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'protyom@gmail.com'
-EMAIL_HOST_PASSWORD = 'gimmefuelgimmefire_M3tallicA'
+EMAIL_HOST_PASSWORD = EmailPassword
 EMAIL_PORT = 587
 
 
@@ -148,3 +153,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = (
     os.path.join(BASE_DIR, 'media')
 )
+
+cloudinary.config(
+  cloud_name="dgy8aqizx",
+  api_key="424472515756874",
+  api_secret=cloudinary_secret,
+)
+
+

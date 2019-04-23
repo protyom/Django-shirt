@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load cloudinary %}
 
 {% block content %}
     <h1>Welcome to SHIrT</h1>
@@ -11,7 +12,7 @@
             {% for shirt in line %}
             <div class="col-sm-4">
                 <div class="card">
-                     <a href="/shirt/{{ shirt.id }}"><img src="{{ shirt.photo.url }}" class="img-thumbnail card-img-top"/></a>
+                    <a href="/shirt/{{ shirt.id }}">{% cloudinary shirt.image class="img-thumbnail card-img-top" %}</a>
                     <h4 class="card-title">{{ shirt.title }}</h4>
                 </div>
             </div>
