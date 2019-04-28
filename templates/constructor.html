@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+
+    <div class="container" style="border: darkgray" >
+        <div id="canvas-container">
+            <canvas width="500px" height="500px" id="shirt-constructor"></canvas>
+        </div>
+
+        <input type="button" value="blue"  style="margin-top:20px; margin-left: 20px; font-size: 0px;
+         background-color: rgba(16,97,208,0.92);border-width: 0px; border-radius: 100%; width: 50px;
+         height:50px" onclick="changeShirtColor(this.value)"/>
+        <input type="button" value="white" style="margin-top:20px; margin-left: 20px; font-size: 0px;
+         background-color: rgba(191,191,191,0.92);border-width: 0px; border-radius: 100%; width: 50px;
+         height:50px" onclick="changeShirtColor(this.value)"/>
+        <input type="button" value="black" style="margin-top:20px; margin-left: 20px; font-size: 0px;
+         background-color: rgba(21,21,21,0.92);border-width: 0px; border-radius: 50%; width: 50px;
+         height:50px"onclick="changeShirtColor(this.value)"/>
+        <input type="button" value="red" style="margin-top:20px; margin-left: 20px; font-size: 0px;
+         background-color: rgba(225,29,26,0.92);border-width: 0px; border-radius: 50%; width: 50px;
+         height:50px" onclick="changeShirtColor(this.value)"/>
+        <input type="button" value="green" style="margin-top:20px; margin-left: 20px; font-size: 0px;
+         background-color: rgba(32,255,25,0.92);border-width: 0px; border-radius: 50%; width: 50px;
+         height:50px" onclick="changeShirtColor(this.value)"/>
+        <input type="button" value="yellow" style="margin-top:20px; margin-left: 20px; font-size: 0px;
+         background-color: rgba(255,247,42,0.92);border-width: 0px; border-radius: 50%; width: 50px;
+         height:50px" onclick="changeShirtColor(this.value)"/>
+        <input type="button" value="pink" style="margin-top:20px; margin-left: 20px; font-size: 0px;
+         background-color: rgba(255,159,145,0.92);border-width: 0px; border-radius: 50%; width: 50px;
+         height:50px" onclick="changeShirtColor(this.value)"/><br/>
+
+        <input type="button" value="Delete selected" class="btn btn-danger" onclick="deleteSelected()"
+         style="margin-top: 20px;margin-left: 50px;">
+        <input type="button" value="Deselect" class="btn btn-secondary" onclick="deselect()"
+         style="margin-top: 20px;margin-left: 50px;">
+        <input type="button" value="Add" class="btn btn-secondary" onclick="deselect()"
+         style="margin-top: 20px;margin-left: 50px;">
+        <br/>
+        <div class="container" style="margin-top: 50px; border-style:solid; border-width:1px; border-radius:5px;
+         margin-bottom: 25px">
+            <p><input type="file" id="image-field" accept="image/png, image/jpeg"/></p>
+            <p><input type="submit" class="btn btn-primary" onclick="addImage(document.getElementById('image-field').value)" value="Add Image"/></p>
+        </div>
+        <div class="container" style="margin-top: 50px; border-style:solid; border-width:1px; border-radius:5px;
+         margin-bottom: 25px">
+            <p><input class="jscolor" value="000000" id="label-color"/></p>
+            <p><input type="text" id="label-text" placeholder="Label text"/></p>
+            <p><input type="submit" class="btn btn-primary" onclick="addText()" value="Add Text"/></p>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="container" style="margin-top: 50px; margin-top: 50px; border-style:solid; border-width:1px; border-radius:5px;
+         margin-bottom: 25px">
+                <p><input type="text" placeholder="Title" id="title"/></p>
+                <p><input type="text" placeholder="Description" id="description"/></p>
+                <p><input type="button" value="Save" onclick="upload()"/></p>
+            </div>
+        {% endif %}
+    </div>
+    <script src="{% static "fabric.min.js" %}"></script>
+    <script src="{% static "jscolor.js" %}"></script>
+    <script>
+        let fileName="";
+        $(document).ready(function(){
+            $('#image-field').change(function(e){
+                fileName = e.target.files[0].name;
+            });
+        });
+
+
+        let canvas = new fabric.Canvas('shirt-constructor');
+        let canvas_container = document.getElementById("canvas-container");
+        let border = new fabric.Image();
+        fabric.Image.fromURL('{% static "shop/border.png" %}', function (img) {
+            border = img;
+            border.selectable = false;
+            border.scaleToWidth(500);
+        });
+        canvas_container.addEventListener('drop',function (e) {
+            console.log("DROP");
+            e = e || window.event;
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            let dt = e.dataTransfer;
+            let files = dt.files;
+            for (let i=0; i<files.length; i++) {
+                let file = files[i];
+                let reader = new FileReader();
+
+                //attach event handlers here...
+                reader.onload = function (e) {
+                    let img = new Image();
+                    img.src = e.target.result;
+                    let imgInstance = new fabric.Image(img, {
+                        left: 100,
+                        top: 100,
+                    });
+                    imgInstance.scaleToWidth(100);
+                    canvas.add(imgInstance);
+                    canvas.remove(border);
+                    canvas.add(border);
+                };
+                reader.readAsDataURL(file);
+            }
+            return false;
+        });
+        canvas_container.addEventListener('dragenter',cancel);
+        canvas_container.addEventListener('dragover', cancel);
+
+        function cancel(e) {
+            if (e.preventDefault) { e.preventDefault(); }
+            return false;
+        }
+
+        function addText(){
+            let color = document.getElementById("label-color").style.backgroundColor;
+            let text = document.getElementById("label-text").value;
+            let label = new fabric.Text(text,{
+                left: 100,
+                top: 100
+            });
+            label.setColor(color);
+            canvas.add(label);
+            canvas.remove(border);
+            canvas.add(border);
+        }
+
+        function addImage(){
+            let file = document.getElementById('image-field').files[0]
+            fabric.Image.fromURL(file,function (img) {
+                img.scaleToWidth(100);
+                canvas.add(img);
+                canvas.remove(border);
+                canvas.add(border);
+                canvas.renderAll();
+            })
+        }
+
+        fabric.Image.fromURL('{% static "shop/white.png" %}', function (img) {
+            img.scaleToWidth(500);
+            img.scaleToHeight(500);
+            img.selectable = false;
+            canvas.add(img);
+            canvas.add(border);
+        });
+        function changeShirtColor(color){
+            canvas.clear();
+            let path = '{% static "shop/" %}' + color +'.png';
+            fabric.Image.fromURL(path, function (img) {
+                img.scaleToWidth(500);
+                img.scaleToHeight(500);
+                img.selectable = false;
+                canvas.add(img);
+                canvas.remove(border);
+                canvas.add(border);
+                canvas.renderAll();
+            });
+        }
+        function deleteSelected() {
+            canvas.remove(canvas.getActiveObject());
+        }
+        function deselect() {
+            canvas.discardActiveObject();
+            canvas.renderAll();
+        }
+        function upload() {
+            let $title = $("#title").val();
+            let $description = $("#description").val();
+            let image = canvas.toDataURL('png');
+            $.ajax({
+                type:"POST",
+                url:"/shirt/constructor_upload/",
+                dataType: "json",
+                data:{ title: $title, description: $description,
+                    image: image, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                success: function (json) {
+                    console.log(json.result);
+                }
+            });
+        }
+    </script>
+{% endblock %}

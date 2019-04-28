@@ -44,7 +44,15 @@ INSTALLED_APPS = [
     'shirts',
     'profiles',
     'cloudinary',
+    'django_elasticsearch_dsl',
+    'search',
 ]
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200',
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -68,7 +76,7 @@ EMAIL_PORT = 587
 
 LOGIN_URL = "/profile/login"
 
-LOGIN_REDIRECT_URL = "/shirts"
+LOGIN_REDIRECT_URL = "/"
 
 
 TEMPLATES = [
@@ -96,8 +104,12 @@ WSGI_APPLICATION = 'shop.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'shirt_db',
+        'USER': 'prots',
+        'PASSWORD': 'zzz',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 

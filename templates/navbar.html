@@ -11,17 +11,26 @@
         <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-            <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
+          <form class="form-inline my-2 my-lg-0" method="GET" action="{% url 'search' %}">
+              <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" id="q">
+              <input class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Search"/>
+          </form>
       </li>
-      <li class="nav-item">
-        <a class="nav-link active" href="/profile/login">Login</a>
-      </li>
-        <li class="nav-item">
-        <a class="nav-link active" href="/profile/signup">Signup</a>
-      </li>
+        <li>
+            <a class="nav-link active" href="/shirt/constructor">Constructor</a>
+        </li>
+        {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link active" href="/profile/logout">Logout</a>
+            </li>
+        {% else %}
+            <li class="nav-item">
+                <a class="nav-link active" href="/profile/login">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/profile/signup">Signup</a>
+            </li>
+        {% endif %}
     </ul>
 
   </div>

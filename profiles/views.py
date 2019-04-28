@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
@@ -10,17 +9,20 @@ from .tokens import account_activation_token
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
 from .forms import SignupForm
+import re
 
 
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
-        if form.is_valid():
+        is_valid = form.is_valid()
+        match = re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z-.]+$", form.cleaned_data.get("email"))
+        if is_valid and match:
             user = form.save(commit=False)
             user.is_active = False
             user.save()
             current_site = get_current_site(request)
-            mail_subject = 'Activate your blog account.'
+            mail_subject = 'Activate your SHIrT account.'
             message = render_to_string('acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
@@ -28,11 +30,17 @@ def signup(request):
                 'token': account_activation_token.make_token(user),
             })
             to_email = form.cleaned_data.get('email')
-            email = EmailMessage(
-                        mail_subject, message, to=[to_email]
-            )
-            email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
+            emails = User.objects.count()
+            if emails == 0:
+                email = EmailMessage(
+                            mail_subject, message, to=[to_email]
+                )
+                email.send()
+                return HttpResponse('Please confirm your email address to complete the registration')
+            else:
+                form.add_error("email", "User with this email already exists")
+        if not match:
+            form.add_error("email", "Wrong email")
     else:
         form = SignupForm()
     return render(request, 'registration/signup.html', {'form': form})

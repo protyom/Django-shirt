@@ -2,36 +2,99 @@
 {%  load cloudinary %}
 
 {% block content %}
-    <script>
+    <script xmlns:border-width="http://www.w3.org/1999/xhtml" xmlns:margin-top="http://www.w3.org/1999/xhtml"
+            xmlns:margin-top="http://www.w3.org/1999/xhtml" xmlns:margin-top="http://www.w3.org/1999/xhtml"
+            xmlns:margin-top="http://www.w3.org/1999/xhtml">
+
     $(document).ready(function() {
+        var createCommentForm = "<form action=\"create\">"
         function getComments() {
             $.ajax({
                 type: "GET",
                 url: "/shirt/get_comment/",
                 dataType: "json",
-                data:{ id: '{{ shirt.id }}' },
+                data:{ id: '{{ shirt.id }}', csrfmiddlewaretoken: '{{ csrf_token }}' },
                 success: function(json) {
                     let commentsBlock = "";
                     for(let commentID in json){
                         var comment = "<div class=\"container\" style = \"border-style:solid; border-width:1px; border-radius:5px; margin-top:25px\">";
                         comment += "<p>"+ json[commentID].user +"</p>";
                         comment += "<p>"+ json[commentID].text+ "</p>";
-                        comment += "<p>"+ json[commentID].likes+" Likes</p>";
+                        comment += "<p id=\"comment-"+ json[commentID].id +"\">"+"<a onclick=\"likeComment("+ json[commentID].id +")\" class=\"btn btn-sm btn-primary\">" +
+                            "<span style=\"color:white;\">like</span></a>  "+
+                            json[commentID].likes+"</p>";
                         comment += "</div>";
                         commentsBlock += comment;
                     }
                     document.getElementById("comments").innerHTML = commentsBlock;
+                },
+                error: function () {
+                    alert("Authenticate, please")
                 }
             });
-            setTimeout(getComments,20000);
         }
+
         getComments();
+        setInterval(getComments,5000);
+
+
+        $('.comment-form').submit(function (event) {
+            event.preventDefault();
+            var $formData = $(this).serialize();
+            var $textComment = $("#comment-form-text").val()
+            $.ajax({
+                method:"POST",
+                url:"/shirt/add_comment/",
+                data:{ id: '{{ shirt.id }}', csrfmiddlewaretoken: '{{ csrf_token }}',
+                    text: $textComment},
+                dataType:"json",
+                success: function (json) {
+                    if(json.result ==="You are not authenticated"){
+                        alert("Authenticate, please");
+                    }else{
+                        getComments();
+                    }
+                },
+                error: function () {
+                    alert("Authenticate, please")
+                }
+            })
+        })
     });
+    function likeComment(commentID) {
+        $.ajax({
+            type:"POST",
+            url:"/shirt/like_comment/",
+            dataType: "json",
+            data:{ id: commentID, csrfmiddlewaretoken: '{{ csrf_token }}'},
+            success: function (json) {
+                if(json[0].result === "You are not authenticated"){
+                    alert("Authenticate, please")
+                }else{
+                    document.getElementById("comment-"+commentID).innerHTML =
+                        "<a onclick=\"likeComment("+ commentID +")\" class=\"btn btn-sm btn-primary\">" +
+                            "<span style=\"color:white;\">like</span></a>  "+json[0].result
+                }
+            },
+            error: function () {
+                alert("Authenticate, please")
+            }
+        })
+    }
+
     </script>
     <H1>{{ shirt.title }}</H1>
 
-    <div class="container" style="overflow: hidden;">{% cloudinary shirt.image style="float: left" %}
+    <div class="container" style="overflow: hidden;"><a href="/shirt/download/{{ shirt.id }}/">
+        {% cloudinary shirt.image style="float: left" %}</a>
         {{ shirt.description }}</div>
 
     <div id="comments"  style="margin-top: 50px;  clear: both;margin-bottom: 25px;"></div>
+    <div class="container" style = "border-style:solid; border-width:1px; border-radius:5px; margin-top:25px; margin-bottom: 25px">
+    <form action="." method="POST" class="comment-form">
+        <p>Add your comment here</p>
+        <p><input type="text" id="comment-form-text" value="" style="width: 100%"></p>
+        <p><input type="submit" value="Comment"></p>
+    </form>
+    </div>
 {% endblock %}

@@ -7,18 +7,36 @@
     <div class="panel">
         <h3 class="panel-header">Shirts catalog</h3>
     <div>
-        {% for line in Shirts %}
-        <div class="row grid-row">
-            {% for shirt in line %}
-            <div class="col-sm-4">
-                <div class="card">
-                    <a href="/shirt/{{ shirt.id }}">{% cloudinary shirt.image class="img-thumbnail card-img-top" %}</a>
-                    <h4 class="card-title">{{ shirt.title }}</h4>
+            {% for line in Shirts.object_list %}
+                <div class="row grid-row">
+                {% for shirt in line %}
+                    <div class="col-sm-4" style="margin-top: 25px;">
+                    <div class="card">
+                        <a href="/shirt/{{ shirt.id }}">{% cloudinary shirt.image class="img-thumbnail card-img-top" %}</a>
+                        <h4 class="card-title">{{ shirt.title }}</h4>
+                    </div>
+                    </div>
+                {% endfor %}
                 </div>
-            </div>
             {% endfor %}
-        </div>
-        {% endfor %}
     </div>
     </div>
+
+    <div class="pagination" style="width: 50%; margin-top: 25px; margin-bottom: 25px;">
+        <span class="step-links">
+            {% if Shirts.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ Shirts.previous_page_number }}">previous</a>
+            {% endif %}
+
+        <span class="current">
+            Page {{ Shirts.number }} of {{ Shirts.paginator.num_pages }}.
+        </span>
+
+        {% if Shirts.has_next %}
+            <a href="?page={{ Shirts.next_page_number }}">next</a>
+            <a href="?page={{ Shirts.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
 {% endblock content %}
