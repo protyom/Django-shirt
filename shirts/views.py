@@ -35,19 +35,22 @@ def split_objects_in_queryset(queryset):
 
 
 def upload(request):
-    context = {'form': ShirtForm()}
-    if request.method == 'POST':
-        form = ShirtForm(request.POST, request.FILES)
-        context['posted'] = form.instance
-        if form.is_valid():
-            form.save()
-    return render(request, 'upload.html', context)
+    if request.user.is_staff:
+        context = {'form': ShirtForm()}
+        if request.method == 'POST':
+            form = ShirtForm(request.POST, request.FILES)
+            context['posted'] = form.instance
+            if form.is_valid():
+                form.save()
+        return render(request, 'upload.html', context)
+    else:
+        return render(request, 'not_found.html')
 
 
 
 
 def index(request):
-    queryset_list = Shirt.objects.filter(author__is_staff=True)
+    queryset_list = Shirt.objects.filter(author__is_staff=True).order_by('id')
     # table = splitobjectsinqueryset(queryset)
     paginator = Paginator(queryset_list, 18)
 
@@ -62,9 +65,12 @@ def index(request):
 
 def shirt_detail_page(request, shirt_id):
     shirt = Shirt.objects.get(id=shirt_id)
-    comments = shirt.comments.all()
-    context = {'shirt': shirt, 'comments': comments}
-    return render(request, 'shirt_detail.html', context)
+    if shirt.author.is_staff or request.user.id == shirt.author.id or request.user.is_staff:
+        comments = shirt.comments.all()
+        context = {'shirt': shirt, 'comments': comments}
+        return render(request, 'shirt_detail.html', context)
+    else:
+        return render(request, 'not_found.html')
 
 
 def get_comment(request):
@@ -145,14 +151,6 @@ def download_image(request, shirt_id):
 
 def constructor(request):
     return render(request, "constructor.html")
-
-
-def manual_upload(request):
-    shirt = Shirt.objects.create(title="Testing manual", description="Just ignore")
-    location = MEDIA_ROOT+"/bmw.jpg"
-    shirt.image = cloudinary.uploader.upload_resource(location).build_url()
-    shirt.save()
-    return HttpResponse("Vrode norm hz")
 
 
 def constructor_upload(request):

@@ -17,8 +17,13 @@
           </form>
       </li>
         <li>
-            <a class="nav-link active" href="/shirt/constructor">Constructor</a>
+            <a class="nav-link active" href="{% url 'constructor' %}">Constructor</a>
         </li>
+        {% if user.is_staff %}
+        <li>
+            <a class="nav-link active" href="{% url 'shirts.views.upload' %}">Upload</a>
+        </li>
+        {% endif %}
     </ul>
         {% if user.is_authenticated %}
             <ul class="nav navbar-nav navbar-right">

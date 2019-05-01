@@ -9,7 +9,7 @@ from .tokens import account_activation_token
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
 from .forms import SignupForm
-from shirts.models import Shirt
+from shirts.models import Shirt, Comment
 import re
 
 
@@ -68,10 +68,21 @@ def personal(request):
     if not request.user.is_authenticated:
         return request(request, 'not_found.html')
     shirts = Shirt.objects.filter(author_id=request.user.id)
+    awards = []
+    if Comment.objects.filter(author_id=request.user.id).count() >= 5:
+        awards.append("Leave 5 comments")
+    if Shirt.objects.filter(author_id=request.user.id).count() >= 5:
+        awards.append("Make 5 designs")
+    num = Comment.objects.filter(likes=request.user)
+    if num.count() >= 5:
+        awards.append("Like 5 comments")
+    if len(awards) == 3:
+        awards.append("SHIrT veteran")
     if shirts.count() == 0:
         shirts = None
     context = {
         "user_name": request.user.username,
         "shirts": shirts,
+        "awards": awards,
     }
     return render(request, 'personal.html', context)

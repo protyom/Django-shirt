@@ -107,12 +107,14 @@
         <input type="hidden" name="shirt-id" value="{{ shirt.id }}"/>
         <input type="submit" value="Buy"/>
     </form>
-    <div id="comments"  style="margin-top: 50px;  clear: both;margin-bottom: 25px;"></div>
-    <div class="container" style = "border-style:solid; border-width:1px; border-radius:5px; margin-top:25px; margin-bottom: 25px">
-    <form action="." method="POST" class="comment-form">
-        <p>Add your comment here</p>
-        <p><input type="text" id="comment-form-text" value="" style="width: 100%"></p>
-        <p><input type="submit" value="Comment"></p>
-    </form>
+    {% if shirt.author.is_staff %}
+        <div id="comments"  style="margin-top: 50px;  clear: both;margin-bottom: 25px;"></div>
+        <div class="container" style = "border-style:solid; border-width:1px; border-radius:5px; margin-top:25px; margin-bottom: 25px">
+        <form action="." method="POST" class="comment-form">
+            <p>Add your comment here</p>
+            <p><textarea cols="40" rows="5" id="comment-form-text" style="width: 100%"></textarea></p>
+            <p><input type="submit" value="Comment"></p>
+        </form>
+    {% endif %}
     </div>
 {% endblock %}
