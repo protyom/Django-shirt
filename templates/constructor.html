@@ -2,8 +2,6 @@
 {% load staticfiles %}
 
 {% block content %}
-
-
     <div class="container" style="border: darkgray" >
         <div id="canvas-container">
             <canvas width="500px" height="500px" id="shirt-constructor"></canvas>
@@ -54,12 +52,18 @@
          margin-bottom: 25px">
                 <p><input type="text" placeholder="Title" id="title"/></p>
                 <p><input type="text" placeholder="Description" id="description"/></p>
-                <p><input type="button" value="Save" onclick="upload()"/></p>
+                <p><input type="button" value="Save" onclick="upload()"/>
+                    <div class="loader" id="loader" style="display: none; margin-left: 10px;"></div>
+                </p>
+
             </div>
         {% endif %}
+
     </div>
+    <link href="{% static "spin.css" %}" rel="stylesheet">
     <script src="{% static "fabric.min.js" %}"></script>
     <script src="{% static "jscolor.js" %}"></script>
+
     <script>
         let fileName="";
         $(document).ready(function(){
@@ -68,7 +72,19 @@
             });
         });
 
-
+        let reader = new FileReader();
+        reader.onload = function (e) {
+            let img = new Image();
+            img.src = e.target.result;
+            let imgInstance = new fabric.Image(img, {
+                left: 100,
+                top: 100,
+            });
+            imgInstance.scaleToWidth(100);
+            canvas.add(imgInstance);
+            canvas.remove(border);
+            canvas.add(border);
+        };
         let canvas = new fabric.Canvas('shirt-constructor');
         let canvas_container = document.getElementById("canvas-container");
         let border = new fabric.Image();
@@ -87,21 +103,7 @@
             let files = dt.files;
             for (let i=0; i<files.length; i++) {
                 let file = files[i];
-                let reader = new FileReader();
 
-                //attach event handlers here...
-                reader.onload = function (e) {
-                    let img = new Image();
-                    img.src = e.target.result;
-                    let imgInstance = new fabric.Image(img, {
-                        left: 100,
-                        top: 100,
-                    });
-                    imgInstance.scaleToWidth(100);
-                    canvas.add(imgInstance);
-                    canvas.remove(border);
-                    canvas.add(border);
-                };
                 reader.readAsDataURL(file);
             }
             return false;
@@ -128,14 +130,14 @@
         }
 
         function addImage(){
-            let file = document.getElementById('image-field').files[0]
-            fabric.Image.fromURL(file,function (img) {
-                img.scaleToWidth(100);
-                canvas.add(img);
-                canvas.remove(border);
-                canvas.add(border);
-                canvas.renderAll();
-            })
+            let files = document.getElementById('image-field').files;
+            for(let i=0;i<files.length;i++) {
+                let file = files[i];
+                if (!file.type.match('image.*')) {
+                    continue;
+                }
+                reader.readAsDataURL(file);
+            }
         }
 
         fabric.Image.fromURL('{% static "shop/white.png" %}', function (img) {
@@ -166,6 +168,7 @@
             canvas.renderAll();
         }
         function upload() {
+            document.getElementById("loader").style.display = "block";
             let $title = $("#title").val();
             let $description = $("#description").val();
             let image = canvas.toDataURL('png');
@@ -177,6 +180,8 @@
                     image: image, csrfmiddlewaretoken: '{{ csrf_token }}'},
                 success: function (json) {
                     console.log(json.result);
+                    document.getElementById("loader").style.display = "none";
+                    alert("Loaded successfully");
                 }
             });
         }

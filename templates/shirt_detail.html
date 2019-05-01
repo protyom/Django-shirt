@@ -41,7 +41,11 @@
         $('.comment-form').submit(function (event) {
             event.preventDefault();
             var $formData = $(this).serialize();
-            var $textComment = $("#comment-form-text").val()
+            var $textComment = $("#comment-form-text").val();
+            if ($textComment === ""){
+                alert("Comment can't be empty");
+                return;
+            }
             $.ajax({
                 method:"POST",
                 url:"/shirt/add_comment/",
@@ -88,7 +92,21 @@
     <div class="container" style="overflow: hidden;"><a href="/shirt/download/{{ shirt.id }}/">
         {% cloudinary shirt.image style="float: left" %}</a>
         {{ shirt.description }}</div>
-
+    <form action="{% url "order_view" %}" method="POST">
+        {% csrf_token %}
+        <select name="sex">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+        <select name="size">
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+        </select>
+        <input type="hidden" name="shirt-id" value="{{ shirt.id }}"/>
+        <input type="submit" value="Buy"/>
+    </form>
     <div id="comments"  style="margin-top: 50px;  clear: both;margin-bottom: 25px;"></div>
     <div class="container" style = "border-style:solid; border-width:1px; border-radius:5px; margin-top:25px; margin-bottom: 25px">
     <form action="." method="POST" class="comment-form">

@@ -10,6 +10,7 @@ class Shirt(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField()
     image = CloudinaryField('image', null=True, blank=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.title

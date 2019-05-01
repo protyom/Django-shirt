@@ -47,7 +47,7 @@ def upload(request):
 
 
 def index(request):
-    queryset_list = Shirt.objects.all()
+    queryset_list = Shirt.objects.filter(author__is_staff=True)
     # table = splitobjectsinqueryset(queryset)
     paginator = Paginator(queryset_list, 18)
 
@@ -162,11 +162,22 @@ def constructor_upload(request):
     base64_data = re.sub('^data:image/.+;base64,', '', data.get('image'))
     byte_data = base64.b64decode(base64_data)
     image_data = BytesIO(byte_data)
-    # img = Image.open(image_data)
-    # img.save(MEDIA_ROOT+"/constrctor.png")
-    shirt = Shirt.objects.create(title=data.get('title'), description=data.get('description'))
+    if not request.user.is_authenticated:
+        return JsonResponse({"result": "error"})
+    user = request.user
+    shirt = Shirt.objects.create(title=data.get('title'), description=data.get('description'), author=user)
     shirt.image = cloudinary.uploader.upload_resource(image_data).build_url()
     shirt.save()
     print(data.get('title'))
     print(data.get('description'))
     return JsonResponse({"result": "uploaded"})
+
+
+def order_view(request):
+    shirt = Shirt.objects.filter(id=int(request.POST.get("shirt-id")))
+    context = {"shirt": shirt[0].title,
+               "sex": request.POST.get("sex"),
+               "size": request.POST.get("size")}
+    if not len(request.POST.dict()):
+        context = {}
+    return render(request, "order.html", context)

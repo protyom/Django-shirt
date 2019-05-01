@@ -19,19 +19,26 @@
         <li>
             <a class="nav-link active" href="/shirt/constructor">Constructor</a>
         </li>
-        {% if user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link active" href="/profile/logout">Logout</a>
-            </li>
-        {% else %}
-            <li class="nav-item">
-                <a class="nav-link active" href="/profile/login">Login</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/profile/signup">Signup</a>
-            </li>
-        {% endif %}
     </ul>
+        {% if user.is_authenticated %}
+            <ul class="nav navbar-nav navbar-right">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'personal_page' %}">My account</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/profile/logout">Logout</a>
+                </li>
+            </ul>
+        {% else %}
+            <ul class="nav navbar-nav navbar-right">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/profile/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/profile/signup">Signup</a>
+                </li>
+            </ul>
+        {% endif %}
 
   </div>
 </nav>

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import re_path, include, path
 from django.contrib.auth.views import LoginView, PasswordResetView, LogoutView
-from .views import activate, signup
+from .views import activate, signup, personal
 
 
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
     path('password_reset/', PasswordResetView.as_view(), name='password_reset'),
     re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
             activate, name='activate'),
+    path('personal/', personal, name="personal_page"),
 ]

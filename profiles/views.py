@@ -9,6 +9,7 @@ from .tokens import account_activation_token
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
 from .forms import SignupForm
+from shirts.models import Shirt
 import re
 
 
@@ -18,27 +19,28 @@ def signup(request):
         is_valid = form.is_valid()
         match = re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z-.]+$", form.cleaned_data.get("email"))
         if is_valid and match:
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-            current_site = get_current_site(request)
-            mail_subject = 'Activate your SHIrT account.'
-            message = render_to_string('acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            })
             to_email = form.cleaned_data.get('email')
-            emails = User.objects.count()
-            if emails == 0:
+            emails = User.objects.filter(email=to_email)
+            if emails.count() > 0:
+                form.add_error("email", "User with this email already exists")
+            else:
+                user = form.save(commit=False)
+                user.is_active = False
+                user.save()
+                current_site = get_current_site(request)
+                mail_subject = 'Activate your SHIrT account.'
+                message = render_to_string('acc_active_email.html', {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': account_activation_token.make_token(user),
+                })
                 email = EmailMessage(
                             mail_subject, message, to=[to_email]
                 )
+                email.content_subtype = "html"
                 email.send()
-                return HttpResponse('Please confirm your email address to complete the registration')
-            else:
-                form.add_error("email", "User with this email already exists")
+                return render(request, 'registration/check_email.html')
         if not match:
             form.add_error("email", "Wrong email")
     else:
@@ -57,6 +59,19 @@ def activate(request, uidb64, token):
         user.save()
         login(request, user)
         # return redirect('home')
-        return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+        return render(request, 'registration/verified.html')
     else:
-        return HttpResponse('Activation link is invalid!')
+        return HttpResponse(request, 'not_found.html')
+
+
+def personal(request):
+    if not request.user.is_authenticated:
+        return request(request, 'not_found.html')
+    shirts = Shirt.objects.filter(author_id=request.user.id)
+    if shirts.count() == 0:
+        shirts = None
+    context = {
+        "user_name": request.user.username,
+        "shirts": shirts,
+    }
+    return render(request, 'personal.html', context)

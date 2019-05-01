@@ -3,9 +3,11 @@
 {% debug %}
 
 {% block content %}
+
+    <H1>Results for '{{ query }}' query</H1>
 {% for shirt in shirts %}
     <div class="col-sm-4">
-        <div class="card">
+        <div class="card" style="margin-top: 25px; margin-bottom: 25px;">
             <a href="/shirt/{{ shirt.id }}">{% cloudinary shirt.image class="img-thumbnail card-img-top" %}</a>
             <h4 class="card-title">{{ shirt.title }}</h4>
         </div>

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load cloudinary %}
+
+{% block content %}
+    <div class="container" style="border-style: solid; border-width:1px; border-color: darkgray; margin-top: 25px;">
+        <H1>Welcome, {{ user.username }}!</H1>
+    </div>
+    {% if shirts %}
+        <h3 style="margin-top: 25px;">List of your designs: </h3>
+        {% for shirt in shirts %}
+            <div class="col-sm-4" style="margin-top: 25px;margin-bottom: 25px;">
+            <div class="card">
+                <a href="/shirt/{{ shirt.id }}">{% cloudinary shirt.image class="img-thumbnail card-img-top" %}</a>
+                <h4 class="card-title">{{ shirt.title }}</h4>
+            </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You haven't got any designs</p>
+    {% endif %}
+{% endblock %}
