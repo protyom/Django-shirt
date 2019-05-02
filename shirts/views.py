@@ -65,12 +65,8 @@ def index(request):
 
 def shirt_detail_page(request, shirt_id):
     shirt = Shirt.objects.get(id=shirt_id)
-    if shirt.author.is_staff or request.user.id == shirt.author.id or request.user.is_staff:
-        comments = shirt.comments.all()
-        context = {'shirt': shirt, 'comments': comments}
-        return render(request, 'shirt_detail.html', context)
-    else:
-        return render(request, 'not_found.html')
+    context = {'shirt': shirt}
+    return render(request, 'shirt_detail.html', context)
 
 
 def get_comment(request):
@@ -79,6 +75,7 @@ def get_comment(request):
     commentsJSON = []
     for comment in comments:
         commentsJSON.append({"user": comment.author.username,
+                             "user_id": comment.author.id,
                              "text": comment.text,
                              "likes": comment.likes.count(),
                              "id": comment.id,
@@ -136,9 +133,9 @@ def get_bytes_to_pdf(img):
 
 
 def download_image(request, shirt_id):
-    shirtq = Shirt.objects.filter(id=shirt_id)
-    shirt = shirtq[0]
-    response = requests.get(shirt.image.build_url())
+    shirt = Shirt.objects.get(id__exact=shirt_id)
+    shirt_url = shirt.image.build_url()
+    response = requests.get(shirt_url)
     img = Image.open(BytesIO(response.content))
     pdf_bytes = img2pdf.convert(get_bytes_to_pdf(img))
     file = open(MEDIA_ROOT+"/download.pdf", "wb")
@@ -172,8 +169,8 @@ def constructor_upload(request):
 
 
 def order_view(request):
-    shirt = Shirt.objects.filter(id=int(request.POST.get("shirt-id")))
-    context = {"shirt": shirt[0].title,
+    shirt = Shirt.objects.get(id__exact=int(request.POST.get("shirt-id")))
+    context = {"shirt": shirt.title,
                "sex": request.POST.get("sex"),
                "size": request.POST.get("size")}
     if not len(request.POST.dict()):

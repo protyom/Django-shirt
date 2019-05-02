@@ -17,10 +17,14 @@
                 success: function(json) {
                     let commentsBlock = "";
                     for(let commentID in json){
-                        var comment = "<div class=\"container\" style = \"border-style:solid; border-width:1px; border-radius:5px; margin-top:25px\">";
-                        comment += "<p>"+ json[commentID].user +"</p>";
+                        var comment = "<div class=\"container\" style = \"border-style:solid; border-width:1px;" +
+                            " border-radius:5px; margin-top:25px\">";
+                        let user_id = json[commentID].user_id;
+                        comment += "<p><a href=\"{% url 'personal_page' user_id=12345 %}\">".replace("12345",
+                            user_id.toString())+ json[commentID].user +"</a></p>";
                         comment += "<p>"+ json[commentID].text+ "</p>";
-                        comment += "<p id=\"comment-"+ json[commentID].id +"\">"+"<a onclick=\"likeComment("+ json[commentID].id +")\" class=\"btn btn-sm btn-primary\">" +
+                        comment += "<p id=\"comment-"+ json[commentID].id +"\">"+"<a onclick=\"likeComment("+
+                            json[commentID].id +")\" class=\"btn btn-sm btn-primary\">" +
                             "<span style=\"color:white;\">like</span></a>  "+
                             json[commentID].likes+"</p>";
                         comment += "</div>";
@@ -107,14 +111,12 @@
         <input type="hidden" name="shirt-id" value="{{ shirt.id }}"/>
         <input type="submit" value="Buy"/>
     </form>
-    {% if shirt.author.is_staff %}
-        <div id="comments"  style="margin-top: 50px;  clear: both;margin-bottom: 25px;"></div>
-        <div class="container" style = "border-style:solid; border-width:1px; border-radius:5px; margin-top:25px; margin-bottom: 25px">
+    <div id="comments"  style="margin-top: 50px;  clear: both;margin-bottom: 25px;"></div>
+    <div class="container" style = "border-style:solid; border-width:1px; border-radius:5px; margin-top:25px; margin-bottom: 25px">
         <form action="." method="POST" class="comment-form">
             <p>Add your comment here</p>
             <p><textarea cols="40" rows="5" id="comment-form-text" style="width: 100%"></textarea></p>
             <p><input type="submit" value="Comment"></p>
         </form>
-    {% endif %}
     </div>
 {% endblock %}

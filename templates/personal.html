@@ -4,17 +4,17 @@
 
 {% block content %}
     <div class="container" style="border-style: solid; border-width:1px; border-color: darkgray; margin-top: 25px;">
-        <H1>Welcome, {{ user.username }}!</H1>
+        <H1>{{ user_name }}</H1>
         <br/>
         {% for award in awards%}
             <h4><img width="100" height="100" src="{% static 'shop/cup.png' %}">{{ award }}</h4>
         {% endfor %}
         {% if awards|length == 0 %}
-            <h4>You don't have any awards</h4>
+            <h4>{{ user_name }} doesn't have any awards</h4>
         {% endif %}
     </div>
     {% if shirts %}
-        <h3 style="margin-top: 25px;">List of your designs: </h3>
+        <h3 style="margin-top: 25px;">List of {{ user_name }} designs: </h3>
         {% for shirt in shirts %}
             <div class="col-sm-4" style="margin-top: 25px;margin-bottom: 25px;">
             <div class="card">
@@ -24,6 +24,6 @@
             </div>
         {% endfor %}
     {% else %}
-        <p>You haven't got any designs</p>
+        <p>{{ user_name }} haven't got any designs</p>
     {% endif %}
 {% endblock %}

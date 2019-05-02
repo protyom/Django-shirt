@@ -12,5 +12,5 @@ urlpatterns = [
     path('password_reset/', PasswordResetView.as_view(), name='password_reset'),
     re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
             activate, name='activate'),
-    path('personal/', personal, name="personal_page"),
+    path('personal/<int:user_id>/', personal, name="personal_page"),
 ]

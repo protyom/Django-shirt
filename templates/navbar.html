@@ -28,7 +28,7 @@
         {% if user.is_authenticated %}
             <ul class="nav navbar-nav navbar-right">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'personal_page' %}">My account</a>
+                    <a class="nav-link active" href="{% url 'personal_page' user.id %}">My account</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="/profile/logout">Logout</a>

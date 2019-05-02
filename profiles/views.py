@@ -64,24 +64,25 @@ def activate(request, uidb64, token):
         return HttpResponse(request, 'not_found.html')
 
 
-def personal(request):
+def personal(request, user_id):
     if not request.user.is_authenticated:
         return request(request, 'not_found.html')
-    shirts = Shirt.objects.filter(author_id=request.user.id)
+    shirts = Shirt.objects.filter(author_id=user_id)
     awards = []
-    if Comment.objects.filter(author_id=request.user.id).count() >= 5:
+    if Comment.objects.filter(author_id=user_id).count() >= 5:
         awards.append("Leave 5 comments")
-    if Shirt.objects.filter(author_id=request.user.id).count() >= 5:
+    if Shirt.objects.filter(author_id=user_id).count() >= 5:
         awards.append("Make 5 designs")
-    num = Comment.objects.filter(likes=request.user)
+    num = Comment.objects.filter(likes__id=user_id)
     if num.count() >= 5:
         awards.append("Like 5 comments")
     if len(awards) == 3:
         awards.append("SHIrT veteran")
     if shirts.count() == 0:
         shirts = None
+    user = User.objects.get(id__exact=user_id)
     context = {
-        "user_name": request.user.username,
+        "user_name": user.username,
         "shirts": shirts,
         "awards": awards,
     }
